@@ -1,113 +1,183 @@
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from "@inertiajs/vue3";
 
-const form = useForm({
-    name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
+import ApplicationLogo from "@/Components/ApplicationLogo.vue";
+import InputError from "@/Components/InputError.vue";
+
+import { Alert, AlertDescription } from "@/Components/ui/alert";
+import { Button } from "@/Components/ui/button";
+import { Card, CardContent } from "@/Components/ui/card";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import AuthLayout from "@/Layouts/AuthLayout.vue";
+
+defineOptions({
+    layout: AuthLayout,
 });
 
-const submit = () => {
-    form.post(route('register'), {
-        onFinish: () => form.reset('password', 'password_confirmation'),
+const props = defineProps({
+    status: String,
+});
+
+const form = useForm({
+    name: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+});
+
+const onHandleSubmit = () => {
+    form.post(route("register"), {
+        onFinish: () => {
+            form.reset("password", "password_confirmation");
+        },
     });
 };
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Register" />
+    <Head title="Register" />
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="name" value="Name" />
+    <div class="flex flex-col gap-6">
+        <Card class="overflow-hidden">
+            <CardContent class="grid p-0 md:grid-cols-2">
+                <!-- FORM -->
+                <form class="p-6 md:p-8" @submit.prevent="onHandleSubmit">
+                    <div class="flex flex-col gap-6">
+                        <!-- Logo -->
+                        <div class="flex flex-col items-center text-center">
+                            <ApplicationLogo />
 
-                <TextInput
-                    id="name"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.name"
-                    required
-                    autofocus
-                    autocomplete="name"
-                />
+                            <h1 class="mt-6 text-2xl font-bold leading-relaxed">
+                                Selamat Datang
+                            </h1>
 
-                <InputError class="mt-2" :message="form.errors.name" />
-            </div>
+                            <p class="text-sm text-muted-foreground">
+                                Mulai daftar sekarang untuk menggunakan Travel
+                                Agentic.
+                            </p>
 
-            <div class="mt-4">
-                <InputLabel for="email" value="Email" />
+                            <Alert
+                                v-if="status"
+                                variant="success"
+                                class="mt-4 w-full"
+                            >
+                                <AlertDescription>
+                                    {{ status }}
+                                </AlertDescription>
+                            </Alert>
+                        </div>
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autocomplete="username"
-                />
+                        <!-- Name -->
+                        <div class="grid gap-2">
+                            <Label for="name"> Nama </Label>
 
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
+                            <Input
+                                id="name"
+                                v-model="form.name"
+                                type="text"
+                                placeholder="Dina Nur Auliana"
+                                autocomplete="name"
+                                autofocus
+                            />
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                            <InputError :message="form.errors.name" />
+                        </div>
 
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="new-password"
-                />
+                        <!-- Email -->
+                        <div class="grid gap-2">
+                            <Label for="email"> Email </Label>
 
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
+                            <Input
+                                id="email"
+                                v-model="form.email"
+                                type="email"
+                                placeholder="dina@email.com"
+                                autocomplete="username"
+                            />
 
-            <div class="mt-4">
-                <InputLabel
-                    for="password_confirmation"
-                    value="Confirm Password"
-                />
+                            <InputError :message="form.errors.email" />
+                        </div>
 
-                <TextInput
-                    id="password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password_confirmation"
-                    required
-                    autocomplete="new-password"
-                />
+                        <!-- Password -->
+                        <div class="grid gap-2">
+                            <Label for="password"> Password </Label>
 
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.password_confirmation"
-                />
-            </div>
+                            <Input
+                                id="password"
+                                v-model="form.password"
+                                type="password"
+                                placeholder="********"
+                                autocomplete="new-password"
+                            />
 
-            <div class="mt-4 flex items-center justify-end">
-                <Link
-                    :href="route('login')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                    Already registered?
-                </Link>
+                            <InputError :message="form.errors.password" />
+                        </div>
 
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Register
-                </PrimaryButton>
-            </div>
-        </form>
-    </GuestLayout>
+                        <!-- Password Confirmation -->
+                        <div class="grid gap-2">
+                            <Label for="password_confirmation">
+                                Konfirmasi Password
+                            </Label>
+
+                            <Input
+                                id="password_confirmation"
+                                v-model="form.password_confirmation"
+                                type="password"
+                                placeholder="********"
+                                autocomplete="new-password"
+                            />
+
+                            <InputError
+                                :message="form.errors.password_confirmation"
+                            />
+                        </div>
+
+                        <!-- Submit -->
+                        <Button
+                            type="submit"
+                            variant="emerald"
+                            class="w-full"
+                            :disabled="form.processing"
+                        >
+                            Daftar
+                        </Button>
+
+                        <!-- Login -->
+                        <div class="text-center text-sm">
+                            Sudah memiliki akun?
+
+                            <Link
+                                :href="route('login')"
+                                class="underline underline-offset-4"
+                            >
+                                Login
+                            </Link>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Image -->
+                <div class="relative hidden bg-muted md:block">
+                    <img
+                        src="/images/logo.png"
+                        alt="Register"
+                        class="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                    />
+                </div>
+            </CardContent>
+        </Card>
+
+        <div
+            class="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary"
+        >
+            Dengan mengklik lanjutkan, Anda menyetujui
+
+            <Link href="#"> Persyaratan Layanan </Link>
+
+            dan
+
+            <Link href="#"> Kebijakan Privasi Kami </Link>
+        </div>
+    </div>
 </template>
