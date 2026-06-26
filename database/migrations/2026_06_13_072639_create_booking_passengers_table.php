@@ -18,7 +18,13 @@ return new class extends Migration
                 ->constrained('bookings')
                 ->cascadeOnDelete();
 
+            $table->string('title')->nullable();
+
             $table->string('full_name');
+
+            $table->date('date_of_birth')->nullable();
+
+            $table->string('nationality')->nullable();
 
             $table->enum('passenger_type', [
                 'adult',
@@ -32,6 +38,8 @@ return new class extends Migration
             ])->default('nik');
 
             $table->string('identity_number')->nullable();
+
+            $table->date('passport_expiry')->nullable();
 
             $table->timestamps();
         });
