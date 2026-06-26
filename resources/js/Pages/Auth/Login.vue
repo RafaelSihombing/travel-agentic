@@ -1,6 +1,26 @@
 <script setup>
-import { Head, Link, useForm } from "@inertiajs/vue3";
-import { Moon } from "lucide-vue-next";
+import { useForm, Head, Link } from "@inertiajs/vue3";
+
+import GuestLayout from "@/Layouts/GuestLayout.vue";
+
+import ApplicationLogo from "@/Components/ApplicationLogo.vue";
+import InputError from "@/Components/InputError.vue";
+
+import { Alert, AlertDescription } from "@/Components/ui/alert";
+import { Button } from "@/Components/ui/button";
+import { Card, CardContent } from "@/Components/ui/card";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import AuthLayout from "@/Layouts/AuthLayout.vue";
+
+defineOptions({
+    layout: AuthLayout,
+});
+
+const props = defineProps({
+    status: String,
+    canResetPassword: Boolean,
+});
 
 const form = useForm({
     email: "",
@@ -8,115 +28,144 @@ const form = useForm({
     remember: false,
 });
 
-const submit = () => {
-    form.post(route("login"));
+const onHandleSubmit = () => {
+    form.post(route("login"), {
+        onFinish: () => form.reset("password"),
+    });
 };
 </script>
 
 <template>
     <Head title="Login" />
 
-    <div
-        class="min-h-screen bg-[#edf2f8] flex flex-col items-center justify-center px-4"
-    >
-        <div
-            class="w-full max-w-5xl overflow-hidden rounded-2xl border bg-white shadow-sm grid md:grid-cols-2"
-        >
-            <!-- LEFT -->
-            <div class="p-10 md:p-12 flex flex-col justify-center">
-                <div class="mb-8 flex items-center justify-center gap-3">
-                    <div
-                        class="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-yellow-200 flex items-center justify-center text-white"
-                    >
-                        💳
-                    </div>
-                    <h1 class="text-2xl font-semibold">
-                        Smart Hub <span class="text-emerald-500">+</span>
-                    </h1>
-                </div>
+    <div class="flex flex-col gap-6">
+        <Card class="overflow-hidden">
+            <CardContent class="grid p-0 md:grid-cols-2">
+                <!-- FORM -->
+                <form class="p-6 md:p-8" @submit.prevent="onHandleSubmit">
+                    <div class="flex flex-col gap-6">
+                        <!-- Logo -->
+                        <div class="flex flex-col items-center text-center">
+                            <ApplicationLogo />
 
-                <div class="mb-8 text-center">
-                    <h2 class="text-3xl font-bold text-gray-950">
-                        Selamat Datang
-                    </h2>
-                    <p class="mt-3 text-gray-500 leading-relaxed">
-                        Masuk ke platform Smart Hub untuk mengelola peminjaman
-                        ruang kerja dan peralatan studio secara mandiri
-                    </p>
-                </div>
+                            <h1 class="mt-6 text-2xl font-bold leading-relaxed">
+                                Selamat Datang
+                            </h1>
 
-                <form @submit.prevent="submit" class="space-y-5">
-                    <div>
-                        <label class="text-sm font-medium">Email</label>
-                        <input
-                            v-model="form.email"
-                            type="email"
-                            placeholder="test@example.com"
-                            class="mt-2 w-full rounded-xl border border-gray-200 px-4 py-4 outline-none focus:ring-2 focus:ring-emerald-400"
-                        />
-                    </div>
+                            <p class="text-sm text-muted-foreground">
+                                Masuk ke platform My Money untuk mengelola
+                                keuangan Anda
+                            </p>
 
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <label class="text-sm font-medium">Password</label>
-                            <Link
-                                :href="route('password.request')"
-                                class="text-sm font-medium hover:underline"
+                            <Alert
+                                v-if="status"
+                                variant="success"
+                                class="w-full mt-4"
                             >
-                                Lupa Password
-                            </Link>
+                                <AlertDescription>
+                                    {{ status }}
+                                </AlertDescription>
+                            </Alert>
                         </div>
 
-                        <input
-                            v-model="form.password"
-                            type="password"
-                            placeholder="********"
-                            class="mt-2 w-full rounded-xl border border-gray-200 px-4 py-4 outline-none focus:ring-2 focus:ring-emerald-400"
-                        />
-                    </div>
+                        <!-- Email -->
+                        <div class="grid gap-2">
+                            <Label for="email"> Email </Label>
 
-                    <button
-                        type="submit"
-                        class="w-full rounded-xl bg-emerald-500 py-4 font-semibold text-white hover:bg-emerald-600 transition"
-                    >
-                        Login
-                    </button>
+                            <Input
+                                id="email"
+                                v-model="form.email"
+                                type="email"
+                                placeholder="test@example.com"
+                                autocomplete="username"
+                                autofocus
+                            />
+
+                            <InputError :message="form.errors.email" />
+                        </div>
+
+                        <!-- Password -->
+                        <div class="grid gap-2">
+                            <div class="flex items-center">
+                                <Label for="password"> Password </Label>
+
+                                <Link
+                                    v-if="canResetPassword"
+                                    :href="route('password.request')"
+                                    class="ml-auto text-sm underline-offset-4 hover:underline"
+                                >
+                                    Lupa Password
+                                </Link>
+                            </div>
+
+                            <Input
+                                id="password"
+                                v-model="form.password"
+                                type="password"
+                                placeholder="********"
+                                autocomplete="current-password"
+                            />
+
+                            <InputError :message="form.errors.password" />
+                        </div>
+
+                        <!-- Remember -->
+                        <div class="flex items-center gap-2">
+                            <input
+                                id="remember"
+                                v-model="form.remember"
+                                type="checkbox"
+                                class="rounded border-gray-300"
+                            />
+
+                            <Label for="remember"> Ingat Saya </Label>
+                        </div>
+
+                        <!-- Submit -->
+                        <Button
+                            type="submit"
+                            variant="emerald"
+                            class="w-full"
+                            :disabled="form.processing"
+                        >
+                            Login
+                        </Button>
+
+                        <!-- Register -->
+                        <div class="text-sm text-center">
+                            Tidak memiliki akun?
+
+                            <Link
+                                :href="route('register')"
+                                class="underline underline-offset-4"
+                            >
+                                Daftar
+                            </Link>
+                        </div>
+                    </div>
                 </form>
 
-                <p class="mt-8 text-center text-sm">
-                    Tidak memiliki akun ?
-                    <Link
-                        :href="route('register')"
-                        class="underline font-medium"
-                    >
-                        Daftar
-                    </Link>
-                </p>
-            </div>
+                <!-- Image -->
+                <div class="relative hidden bg-muted md:block">
+                    <img
+                        src="/images/logo.png"
+                        alt="Login"
+                        class="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                    />
+                </div>
+            </CardContent>
+        </Card>
 
-            <!-- RIGHT -->
-            <div
-                class="hidden md:flex items-center justify-center bg-[#f7f7f8]"
-            >
-                <img
-                    src="/images/login-illustration.png"
-                    alt="Login Illustration"
-                    class="h-full w-full object-cover"
-                />
-            </div>
-        </div>
-
-        <p class="mt-8 text-sm text-gray-500 text-center">
-            Dengan mengklik lanjutkan, anda menyetujui
-            <a href="#" class="underline">Persyaratan Layanan</a>
-            dan
-            <a href="#" class="underline">Kebijakan Privasi Kami</a>
-        </p>
-
-        <button
-            class="fixed bottom-8 right-8 h-14 w-20 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg"
+        <div
+            class="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary"
         >
-            <Moon class="h-5 w-5" />
-        </button>
+            Dengan mengklik lanjutkan, Anda menyetujui
+
+            <Link href="#"> Persyaratan Layanan </Link>
+
+            dan
+
+            <Link href="#"> Kebijakan Privasi Kami </Link>
+        </div>
     </div>
 </template>
