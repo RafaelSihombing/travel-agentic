@@ -17,11 +17,12 @@ import SelectContent from "@/Components/ui/select/SelectContent.vue";
 import SelectItem from "@/Components/ui/select/SelectItem.vue";
 import SelectValue from "@/Components/ui/select/SelectValue.vue";
 import RecommendationCard from "@/Components/Landing/RecommendationCard.vue";
+import { Badge } from "@/Components/ui/badge";
 
 const props = defineProps({
-    flights: Array,
-    airports: Array,
-    recommendations: Array,
+    flights: { type: Array, default: () => [] },
+    airports: { type: Array, default: () => [] },
+    recommendations: { type: Array, default: () => [] },
 });
 
 const form = useForm({
